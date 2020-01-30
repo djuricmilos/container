@@ -2,24 +2,24 @@
 
 namespace Laganica\Di\Resolver;
 
-use Closure;
-use Psr\Container\ContainerInterface;
+use Laganica\Di\Definition\ClosureDefinition;
+use Laganica\Di\Definition\DefinitionInterface;
 
 /**
  * Class ClosureResolver
  *
  * @package Laganica\Di\Resolver
  */
-class ClosureResolver
+class ClosureResolver extends Resolver
 {
     /**
-     * @param ContainerInterface $container
-     * @param Closure $definition
-     *
-     * @return mixed
+     * @inheritDoc
      */
-    public function __invoke(ContainerInterface $container, Closure $definition)
+    public function resolve(DefinitionInterface $definition)
     {
-        return $definition($container);
+        $this->validate($definition, ClosureDefinition::class);
+        $closure = $definition->getClosure();
+
+        return $closure($this->getContainer());
     }
 }

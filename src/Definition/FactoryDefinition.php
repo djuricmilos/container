@@ -7,6 +7,26 @@ namespace Laganica\Di\Definition;
  *
  * @package Laganica\Di\Definition
  */
-class FactoryDefinition extends Definition
+class FactoryDefinition implements DefinitionInterface
 {
+    /**
+     * @var string
+     */
+    private $factoryClass;
+
+    /**
+     * @param string $factoryClass
+     */
+    public function __construct(string $factoryClass)
+    {
+        $this->factoryClass = $factoryClass;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFactoryClass(): string
+    {
+        return $this->factoryClass;
+    }
 }

@@ -2,8 +2,9 @@
 
 namespace Laganica\Di\Resolver;
 
+use Laganica\Di\Definition\ClassDefinition;
+use Laganica\Di\Definition\DefinitionInterface;
 use Laganica\Di\Exception\NotFoundException;
-use Psr\Container\ContainerInterface;
 
 /**
  * Class AutowireResolver
@@ -13,20 +14,20 @@ use Psr\Container\ContainerInterface;
 class ClassResolver extends ReflectionResolver
 {
     /**
-     * @param ContainerInterface $container
-     * @param string $id
-     *
-     * @throws NotFoundException
-     * @return mixed
+     * @inheritDoc
      */
-    public function __invoke(ContainerInterface $container, string $id)
+    public function resolve(DefinitionInterface $definition)
     {
-        if (class_exists($id)) {
-            $params = $this->getConstructorParams($container, $id);
+        $this->validate($definition, ClassDefinition::class);
 
-            return new $id(...$params);
+        $class = $definition->getClass();
+
+        if (!class_exists($class)) {
+            NotFoundException::create($class);
         }
 
-        throw NotFoundException::create($id);
+        $params = $this->getConstructorParams($class);
+
+        return new $class(...$params);
     }
 }

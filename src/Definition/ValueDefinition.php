@@ -7,25 +7,25 @@ namespace Laganica\Di\Definition;
  *
  * @package Laganica\Di\Definition
  */
-class ValueDefinition
+class ValueDefinition implements DefinitionInterface
 {
     /**
-     * @var string
+     * @var mixed
      */
     private $value;
 
     /**
-     * @param string $value
+     * @param mixed $value
      */
-    public function __construct(string $value)
+    public function __construct($value)
     {
         $this->value = $value;
     }
 
     /**
-     * @return string
+     * @return mixed
      */
-    public function getValue(): string
+    public function getValue()
     {
         return $this->value;
     }

@@ -5,11 +5,11 @@ namespace Laganica\Di\Exception;
 use Psr\Container\NotFoundExceptionInterface;
 
 /**
- * Class NotFoundException
+ * Class DefinitionNotFoundException
  *
  * @package Laganica\Di\Exception
  */
-class NotFoundException extends ContainerException implements NotFoundExceptionInterface
+class DefinitionNotFoundException extends ContainerException implements NotFoundExceptionInterface
 {
     /**
      * @param string $id
@@ -18,6 +18,6 @@ class NotFoundException extends ContainerException implements NotFoundExceptionI
      */
     public static function create(string $id): self
     {
-        return new self("Not able to resolve $id entry");
+        return new self("Definition for entry or class $id is not found");
     }
 }

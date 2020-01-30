@@ -2,20 +2,16 @@
 
 namespace Laganica\Di;
 
-use Closure;
+use ArrayObject;
 use InvalidArgumentException;
-use Laganica\Di\Definition\AliasDefinition;
-use Laganica\Di\Definition\BindDefinition;
-use Laganica\Di\Definition\FactoryDefinition;
-use Laganica\Di\Definition\ValueDefinition;
+use Laganica\Di\Definition\ClassDefinition;
+use Laganica\Di\Definition\DefinitionFactoryInterface;
+use Laganica\Di\Definition\DefinitionInterface;
 use Laganica\Di\Exception\ContainerException;
+use Laganica\Di\Exception\DefinitionNotFoundException;
+use Laganica\Di\Exception\InvalidDefinitionException;
 use Laganica\Di\Exception\NotFoundException;
-use Laganica\Di\Resolver\AliasResolver;
-use Laganica\Di\Resolver\ClassResolver;
-use Laganica\Di\Resolver\BindResolver;
-use Laganica\Di\Resolver\ClosureResolver;
-use Laganica\Di\Resolver\FactoryResolver;
-use Laganica\Di\Resolver\ValueResolver;
+use Laganica\Di\Resolver\ResolverFactoryInterface;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -28,14 +24,14 @@ use Psr\Container\NotFoundExceptionInterface;
 class Container implements ContainerInterface
 {
     /**
-     * @var array
+     * @var ArrayObject
      */
-    private $definitions = [];
+    private $definitions;
 
     /**
-     * @var array
+     * @var ArrayObject
      */
-    private $entries = [];
+    private $entries;
 
     /**
      * @var bool
@@ -43,48 +39,46 @@ class Container implements ContainerInterface
     private $autowire = true;
 
     /**
+     * @var ResolverFactoryInterface
+     */
+    private $resolverFactory;
+
+    /**
+     * @var DefinitionFactoryInterface
+     */
+    private $definitionFactory;
+
+    /**
+     * @param DefinitionFactoryInterface $definitionFactory
+     * @param ResolverFactoryInterface $resolverFactory
+     */
+    public function __construct(DefinitionFactoryInterface $definitionFactory, ResolverFactoryInterface $resolverFactory)
+    {
+        $this->definitions = new ArrayObject();
+        $this->entries = new ArrayObject();
+        $this->definitionFactory = $definitionFactory;
+        $this->resolverFactory = $resolverFactory;
+        $this->resolverFactory->setContainer($this);
+    }
+
+    /**
      * @inheritDoc
      */
     public function get($id)
     {
         if (!is_string($id)) {
-            $type = gettype($id);
+            $type = get_class($id) ?: gettype($id);
             throw new InvalidArgumentException("Argument \$id must be string, $type given");
         }
 
-        if (array_key_exists($id, $this->entries)) {
-            return $this->entries[$id];
+        if ($this->entries->offsetExists($id)) {
+            return $this->entries->offsetGet($id);
         }
 
-        if (array_key_exists($id, $this->definitions)) {
-            $definition = $this->definitions[$id];
+        $entry = $this->resolveEntry($id);
+        $this->entries->offsetSet($id, $entry);
 
-            switch (true) {
-                case $definition instanceof BindDefinition:
-                    return $this->addEntry($id, (new BindResolver)($this, $definition));
-
-                case $definition instanceof FactoryDefinition:
-                    return $this->addEntry($id, (new FactoryResolver)($this, $definition));
-
-                case $definition instanceof ValueDefinition:
-                    return $this->addEntry($id, (new ValueResolver())($this, $definition));
-
-                case $definition instanceof AliasDefinition:
-                    return $this->addEntry($id, (new AliasResolver())($this, $definition));
-
-                case $definition instanceof Closure:
-                    return $this->addEntry($id, (new ClosureResolver)($this, $definition));
-
-                case is_string($definition):
-                    return $this->addEntry($id, (new ClassResolver)($this, $definition));
-            }
-        }
-
-        if ($this->isAutowire()) {
-            return $this->addEntry($id, (new ClassResolver)($this, $id));
-        }
-
-        throw NotFoundException::create($id);
+        return $entry;
     }
 
     /**
@@ -101,6 +95,26 @@ class Container implements ContainerInterface
         } catch (ContainerExceptionInterface $ex) {
             return true;
         }
+    }
+
+    /**
+     * @param string $id
+     *
+     * @throws ContainerException
+     * @throws DefinitionNotFoundException
+     * @throws InvalidDefinitionException
+     * @throws NotFoundException
+     *
+     * @return mixed
+     */
+    private function resolveEntry(string $id)
+    {
+        $definition = $this->getDefinition($id);
+
+        return $this
+            ->resolverFactory
+            ->create($definition)
+            ->resolve($definition);
     }
 
     /**
@@ -124,22 +138,47 @@ class Container implements ContainerInterface
     public function addDefinitions(array $definitions): void
     {
         foreach ($definitions as $id => $definition) {
-            if (array_key_exists($id, $this->definitions)) {
-                throw new ContainerException("More than one definition is found for entry or class $id");
-            }
-
-            $this->definitions[$id] = $definition;
+            $this->addDefinition($id, $definition);
         }
     }
 
     /**
      * @param string $id
-     * @param mixed $entry
+     * @param $definition
      *
-     * @return mixed
+     * @throws ContainerException
      */
-    private function addEntry(string $id, $entry)
+    public function addDefinition(string $id, $definition): void
     {
-        return $this->entries[$id] = $entry;
+        if ($this->definitions->offsetExists($id)) {
+            throw new ContainerException("More than one definition is found for entry or class $id");
+        }
+
+        $this->definitions->offsetSet($id, $definition);
+    }
+
+    /**
+     * @param string $id
+     *
+     * @throws DefinitionNotFoundException
+     * @throws InvalidDefinitionException
+     *
+     * @return DefinitionInterface
+     */
+    public function getDefinition(string $id): DefinitionInterface
+    {
+        $definition = $this->definitions->offsetExists($id)
+            ? $this->definitions->offsetGet($id)
+            : null;
+
+        if ($definition === null && $this->isAutowire()) {
+            $definition = new ClassDefinition($id);
+        }
+
+        if ($definition === null) {
+            throw DefinitionNotFoundException::create($id);
+        }
+
+        return $this->definitionFactory->create($definition);
     }
 }

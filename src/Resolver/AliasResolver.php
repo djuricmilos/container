@@ -3,7 +3,7 @@
 namespace Laganica\Di\Resolver;
 
 use Laganica\Di\Definition\AliasDefinition;
-use Psr\Container\ContainerInterface;
+use Laganica\Di\Definition\DefinitionInterface;
 
 /**
  * Class AliasResolver
@@ -13,13 +13,12 @@ use Psr\Container\ContainerInterface;
 class AliasResolver extends ReflectionResolver
 {
     /**
-     * @param ContainerInterface $container
-     * @param AliasDefinition $definition
-     *
-     * @return mixed
+     * @inheritDoc
      */
-    public function __invoke(ContainerInterface $container, AliasDefinition $definition)
+    public function resolve(DefinitionInterface $definition)
     {
-        return $container->get($definition->getAlias());
+        $this->validate($definition, AliasDefinition::class);
+
+        return $this->getContainer()->get($definition->getAlias());
     }
 }

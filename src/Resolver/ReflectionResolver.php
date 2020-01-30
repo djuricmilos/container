@@ -3,7 +3,6 @@
 namespace Laganica\Di\Resolver;
 
 use Laganica\Di\Exception\NotFoundException;
-use Psr\Container\ContainerInterface;
 use ReflectionClass;
 use ReflectionException;
 
@@ -12,17 +11,16 @@ use ReflectionException;
  *
  * @package Laganica\Di\Resolver
  */
-abstract class ReflectionResolver
+abstract class ReflectionResolver extends Resolver
 {
     /**
-     * @param ContainerInterface $container
      * @param string $class
      *
      * @throws NotFoundException
      *
      * @return array
      */
-    protected function getConstructorParams(ContainerInterface $container, string $class): array
+    protected function getConstructorParams(string $class): array
     {
         $params = [];
 
@@ -40,7 +38,7 @@ abstract class ReflectionResolver
 
         foreach ($constructor->getParameters() AS $param) {
             $dependencyId = $param->getClass()->name;
-            $params[] = $container->get($dependencyId);
+            $params[] = $this->getContainer()->get($dependencyId);
         }
 
         return $params;

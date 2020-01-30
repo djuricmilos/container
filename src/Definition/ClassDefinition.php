@@ -3,11 +3,11 @@
 namespace Laganica\Di\Definition;
 
 /**
- * Class Definition
+ * Class ClassDefinition
  *
  * @package Laganica\Di\Definition
  */
-abstract class Definition
+class ClassDefinition implements DefinitionInterface
 {
     /**
      * @var string

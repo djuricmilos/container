@@ -2,14 +2,16 @@
 
 namespace Laganica\Di;
 
+use Closure;
 use Laganica\Di\Definition\AliasDefinition;
-use Laganica\Di\Definition\BindDefinition;
+use Laganica\Di\Definition\ClassDefinition;
+use Laganica\Di\Definition\ClosureDefinition;
 use Laganica\Di\Definition\FactoryDefinition;
 use Laganica\Di\Definition\ValueDefinition;
 
-function bind(string $class): BindDefinition
+function bind(string $class): ClassDefinition
 {
-    return new BindDefinition($class);
+    return new ClassDefinition($class);
 }
 
 function value(string $value): ValueDefinition
@@ -25,4 +27,9 @@ function factory(string $class): FactoryDefinition
 function alias(string $class): AliasDefinition
 {
     return new AliasDefinition($class);
+}
+
+function closure(Closure $closure): ClosureDefinition
+{
+    return new ClosureDefinition($closure);
 }

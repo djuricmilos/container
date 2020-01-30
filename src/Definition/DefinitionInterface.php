@@ -3,10 +3,10 @@
 namespace Laganica\Di\Definition;
 
 /**
- * Class BindDefinition
+ * Interface DefinitionInterface
  *
  * @package Laganica\Di\Definition
  */
-class BindDefinition extends Definition
+interface DefinitionInterface
 {
 }

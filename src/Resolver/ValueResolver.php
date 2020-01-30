@@ -2,24 +2,23 @@
 
 namespace Laganica\Di\Resolver;
 
+use Laganica\Di\Definition\DefinitionInterface;
 use Laganica\Di\Definition\ValueDefinition;
-use Psr\Container\ContainerInterface;
 
 /**
  * Class ValueResolver
  *
  * @package Laganica\Di\Resolver
  */
-class ValueResolver extends ReflectionResolver
+class ValueResolver extends Resolver
 {
     /**
-     * @param ContainerInterface $container
-     * @param ValueDefinition $definition
-     *
-     * @return mixed
+     * @inheritDoc
      */
-    public function __invoke(ContainerInterface $container, ValueDefinition $definition)
+    public function resolve(DefinitionInterface $definition)
     {
+        $this->validate($definition, ValueDefinition::class);
+
         return $definition->getValue();
     }
 }

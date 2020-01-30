@@ -2,12 +2,13 @@
 
 namespace Laganica\Di\Test;
 
-use Laganica\Di\Container;
+use Laganica\Di\ContainerBuilder;
 use Laganica\Di\FactoryInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use function Laganica\Di\alias;
 use function Laganica\Di\bind;
+use function Laganica\Di\closure;
 use function Laganica\Di\factory;
 use function Laganica\Di\value;
 
@@ -55,7 +56,7 @@ class ContainerTest extends TestCase
             ServiceInterface::class => bind(Service::class)
         ];
 
-        $container = new Container();
+        $container = (new ContainerBuilder)->build();
         $container->addDefinitions($definitions);
 
         $this->assertInstanceOf(Service::class, $container->get(ServiceInterface::class));
@@ -74,7 +75,26 @@ class ContainerTest extends TestCase
             }
         ];
 
-        $container = new Container();
+        $container = (new ContainerBuilder)->build();
+        $container->addDefinitions($definitions);
+
+        $this->assertInstanceOf(Service::class, $container->get(ServiceInterface::class));
+    }
+
+    /**
+     * @throws
+     *
+     * @return void
+     */
+    public function testClosure(): void
+    {
+        $definitions = [
+            ServiceInterface::class => closure(static function (ContainerInterface $container) {
+                return new Service($container->get(Dependency::class));
+            })
+        ];
+
+        $container = (new ContainerBuilder)->build();
         $container->addDefinitions($definitions);
 
         $this->assertInstanceOf(Service::class, $container->get(ServiceInterface::class));
@@ -91,7 +111,7 @@ class ContainerTest extends TestCase
             ServiceInterface::class => factory(ServiceFactory::class)
         ];
 
-        $container = new Container();
+        $container = (new ContainerBuilder)->build();
         $container->addDefinitions($definitions);
 
         $this->assertInstanceOf(Service::class, $container->get(ServiceInterface::class));
@@ -109,7 +129,7 @@ class ContainerTest extends TestCase
             'alias' => alias(ServiceInterface::class)
         ];
 
-        $container = new Container();
+        $container = (new ContainerBuilder)->build();
         $container->addDefinitions($definitions);
 
         $this->assertInstanceOf(Service::class, $container->get('alias'));
@@ -126,7 +146,7 @@ class ContainerTest extends TestCase
             ServiceInterface::class => Service::class
         ];
 
-        $container = new Container();
+        $container = (new ContainerBuilder)->build();
         $container->addDefinitions($definitions);
 
         $this->assertInstanceOf(Service::class, $container->get(ServiceInterface::class));
@@ -143,7 +163,7 @@ class ContainerTest extends TestCase
             'count' => value(100)
         ];
 
-        $container = new Container();
+        $container = (new ContainerBuilder)->build();
         $container->addDefinitions($definitions);
 
         $this->assertEquals(100, $container->get('count'));

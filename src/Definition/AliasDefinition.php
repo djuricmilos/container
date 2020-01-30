@@ -7,7 +7,7 @@ namespace Laganica\Di\Definition;
  *
  * @package Laganica\Di\Definition
  */
-class AliasDefinition
+class AliasDefinition implements DefinitionInterface
 {
     /**
      * @var string
