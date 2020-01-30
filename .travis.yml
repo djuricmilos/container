@@ -1,0 +1,22 @@
+sudo: false
+
+language: php
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+
+matrix:
+  include:
+    - php: 7.3
+      env:
+        - EXECUTE_TEST_COVERALLS=true
+
+install:
+  - travis_retry composer install --no-interaction
+
+script:
+  - if [[ $EXECUTE_TEST_COVERALLS == 'true' ]]; then ./vendor/bin/phpunit --disallow-test-output --coverage-clover ./clover.xml ; else ./vendor/bin/phpunit --disallow-test-output ; fi
+
+after_script:
+  - if [[ $EXECUTE_TEST_COVERALLS == 'true' ]]; then wget https://scrutinizer-ci.com/ocular.phar && php ocular.phar code-coverage:upload --format=php-clover ./clover.xml ; fi
