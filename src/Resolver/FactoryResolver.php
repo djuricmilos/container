@@ -4,7 +4,8 @@ namespace Laganica\Di\Resolver;
 
 use Laganica\Di\Definition\DefinitionInterface;
 use Laganica\Di\Definition\FactoryDefinition;
-use Laganica\Di\Exception\ContainerException;
+use Laganica\Di\Exception\ClassNotFoundException;
+use Laganica\Di\Exception\InvalidFactoryException;
 use Laganica\Di\FactoryInterface;
 
 /**
@@ -22,11 +23,16 @@ class FactoryResolver extends Resolver
         $this->validate($definition, FactoryDefinition::class);
 
         $factoryClass = $definition->getFactoryClass();
+
+        if (!class_exists($factoryClass)) {
+            throw ClassNotFoundException::create($factoryClass);
+        }
+
         $factoryInterface = FactoryInterface::class;
         $interfaces = class_implements($factoryClass);
 
         if (empty($interfaces) || !in_array($factoryInterface, $interfaces, true)) {
-            throw new ContainerException("$factoryClass must implement $factoryInterface");
+            throw InvalidFactoryException::create($factoryClass, $factoryInterface);
         }
 
         return (new $factoryClass)($this->getContainer());

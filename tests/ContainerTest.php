@@ -10,6 +10,7 @@ use Laganica\Di\Exception\CircularDependencyFoundException;
 use Laganica\Di\Exception\ContainerException;
 use Laganica\Di\Exception\InvalidDefinitionException;
 use Laganica\Di\Exception\ClassNotFoundException;
+use Laganica\Di\Exception\InvalidFactoryException;
 use Laganica\Di\FactoryInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -331,6 +332,48 @@ class ContainerTest extends TestCase
 
         $this->expectException(ClassNotFoundException::class);
         $this->expectExceptionMessage('InvalidClass class not found');
+
+        $container->get(ServiceInterface::class);
+    }
+
+    /**
+     * @throws
+     *
+     * @return void
+     */
+    public function testInvalidFactory(): void
+    {
+        $definitions = [
+            ServiceInterface::class => factory(Service::class)
+        ];
+
+        $container = (new ContainerBuilder)->build();
+        $container->addDefinitions($definitions);
+
+        $class = Service::class;
+        $interface = FactoryInterface::class;
+        $this->expectException(InvalidFactoryException::class);
+        $this->expectExceptionMessage("$class must implement $interface");
+
+        $container->get(ServiceInterface::class);
+    }
+
+    /**
+     * @throws
+     *
+     * @return void
+     */
+    public function testInvalidFactoryClass(): void
+    {
+        $definitions = [
+            ServiceInterface::class => factory('InvalidFactoryClass')
+        ];
+
+        $container = (new ContainerBuilder)->build();
+        $container->addDefinitions($definitions);
+
+        $this->expectException(ClassNotFoundException::class);
+        $this->expectExceptionMessage('InvalidFactoryClass class not found');
 
         $container->get(ServiceInterface::class);
     }
