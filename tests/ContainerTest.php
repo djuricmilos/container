@@ -204,6 +204,23 @@ class ContainerTest extends TestCase
     }
 
     /**
+     * @throws ContainerException
+     *
+     * @return void
+     */
+    public function testHasInvalidDefinition(): void
+    {
+        $definitions = [
+            ServiceInterface::class => 'InvalidClass'
+        ];
+
+        $container = (new ContainerBuilder)->build();
+        $container->addDefinitions($definitions);
+
+        $this->assertTrue($container->has(ServiceInterface::class));
+    }
+
+    /**
      * @return void
      */
     public function testDoesNotHave(): void
