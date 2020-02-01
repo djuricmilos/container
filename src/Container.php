@@ -107,10 +107,11 @@ class Container implements ContainerInterface
     /**
      * @param string $id
      *
+     * @throws CircularDependencyFoundException
+     * @throws ClassNotFoundException
      * @throws ContainerException
      * @throws DefinitionNotFoundException
      * @throws InvalidDefinitionException
-     * @throws ClassNotFoundException
      *
      * @return mixed
      */
