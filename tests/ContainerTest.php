@@ -2,6 +2,7 @@
 
 namespace Laganica\Di\Test;
 
+use InvalidArgumentException;
 use Laganica\Di\ContainerBuilder;
 use Laganica\Di\Exception\CircularDependencyFoundException;
 use Laganica\Di\FactoryInterface;
@@ -50,6 +51,10 @@ class NonResolvable
     {
 
     }
+}
+
+class Id
+{
 }
 
 /**
@@ -197,8 +202,37 @@ class ContainerTest extends TestCase
         $container = (new ContainerBuilder)->build();
         $container->addDefinitions($definitions);
 
+        $class = NonResolvable::class;
         $this->expectException(CircularDependencyFoundException::class);
+        $this->expectExceptionMessage("Circular dependency found for entry or class $class");
 
         $container->get(NonResolvable::class);
+    }
+
+    /**
+     * @return void
+     */
+    public function testGetArgumentIsInteger(): void
+    {
+        $container = (new ContainerBuilder)->build();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Argument $id must be string, integer given');
+
+        $container->get(100);
+    }
+
+    /**
+     * @return void
+     */
+    public function testGetArgumentIsObject(): void
+    {
+        $container = (new ContainerBuilder)->build();
+
+        $class = Id::class;
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("Argument \$id must be string, $class given");
+
+        $container->get(new Id);
     }
 }

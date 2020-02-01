@@ -74,7 +74,7 @@ class Container implements ContainerInterface
     public function get($id)
     {
         if (!is_string($id)) {
-            $type = get_class($id) ?: gettype($id);
+            $type = is_object($id) ? get_class($id) : gettype($id);
             throw new InvalidArgumentException("Argument \$id must be string, $type given");
         }
 

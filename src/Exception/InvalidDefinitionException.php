@@ -24,7 +24,7 @@ class InvalidDefinitionException extends ContainerException implements NotFoundE
             DefinitionInterface::class,
             Closure::class,
             'string',
-            get_class($definition) ?: gettype($definition)
+            is_object($definition) ? get_class($definition) : gettype($definition)
         ]));
     }
 }
