@@ -2,9 +2,12 @@
 
 namespace Laganica\Di\Test;
 
+use Closure;
 use InvalidArgumentException;
 use Laganica\Di\ContainerBuilder;
+use Laganica\Di\Definition\DefinitionInterface;
 use Laganica\Di\Exception\CircularDependencyFoundException;
+use Laganica\Di\Exception\InvalidDefinitionException;
 use Laganica\Di\FactoryInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -246,5 +249,27 @@ class ContainerTest extends TestCase
         $container = (new ContainerBuilder)->build();
 
         $this->assertSame($container->get(Dependency::class), $container->get(Dependency::class));
+    }
+
+    /**
+     * @throws
+     *
+     * @return void
+     */
+    public function testInvalidDefinition(): void
+    {
+        $definitions = [
+            'invalid-definition' => 100
+        ];
+
+        $container = (new ContainerBuilder)->build();
+        $container->addDefinitions($definitions);
+
+        $definitionClass = DefinitionInterface::class;
+        $closureClass = Closure::class;
+        $this->expectException(InvalidDefinitionException::class);
+        $this->expectExceptionMessage("Argument \$definition must be either $definitionClass, $closureClass or string, integer given");
+
+        $container->get('invalid-definition');
     }
 }
