@@ -7,6 +7,7 @@ use InvalidArgumentException;
 use Laganica\Di\Definition\ClassDefinition;
 use Laganica\Di\Definition\DefinitionFactoryInterface;
 use Laganica\Di\Definition\DefinitionInterface;
+use Laganica\Di\Exception\CircularDependencyFoundException;
 use Laganica\Di\Exception\ContainerException;
 use Laganica\Di\Exception\DefinitionNotFoundException;
 use Laganica\Di\Exception\InvalidDefinitionException;
@@ -34,6 +35,11 @@ class Container implements ContainerInterface
     private $entries;
 
     /**
+     * @var ArrayObject
+     */
+    private $resolving;
+
+    /**
      * @var bool
      */
     private $autowire = true;
@@ -56,6 +62,7 @@ class Container implements ContainerInterface
     {
         $this->definitions = new ArrayObject();
         $this->entries = new ArrayObject();
+        $this->resolving = new ArrayObject();
         $this->definitionFactory = $definitionFactory;
         $this->resolverFactory = $resolverFactory;
         $this->resolverFactory->setContainer($this);
@@ -111,10 +118,11 @@ class Container implements ContainerInterface
     {
         $definition = $this->getDefinition($id);
 
-        return $this
-            ->resolverFactory
-            ->create($definition)
-            ->resolve($definition);
+        $this->startResolving($id);
+        $entry = $this->resolverFactory->create($definition)->resolve($definition);
+        $this->endResolving($id);
+
+        return $entry;
     }
 
     /**
@@ -125,7 +133,7 @@ class Container implements ContainerInterface
         $this->autowire = $autowire;
     }
 
-    public function isAutowire(): bool
+    private function isAutowire(): bool
     {
         return $this->autowire;
     }
@@ -165,7 +173,7 @@ class Container implements ContainerInterface
      *
      * @return DefinitionInterface
      */
-    public function getDefinition(string $id): DefinitionInterface
+    private function getDefinition(string $id): DefinitionInterface
     {
         $definition = $this->definitions->offsetExists($id)
             ? $this->definitions->offsetGet($id)
@@ -180,5 +188,33 @@ class Container implements ContainerInterface
         }
 
         return $this->definitionFactory->create($definition);
+    }
+
+    /**
+     * @param string $id
+     *
+     * @throws CircularDependencyFoundException
+     *
+     * @return void
+     */
+    private function startResolving(string $id): void
+    {
+        if ($this->resolving->offsetExists($id)) {
+            throw CircularDependencyFoundException::create($id);
+        }
+
+        $this->resolving->offsetSet($id, true);
+    }
+
+    /**
+     * @param string $id
+     *
+     * @return void
+     */
+    private function endResolving(string $id): void
+    {
+        if ($this->resolving->offsetExists($id)) {
+            $this->resolving->offsetUnset($id);
+        }
     }
 }

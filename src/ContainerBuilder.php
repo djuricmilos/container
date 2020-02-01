@@ -4,7 +4,6 @@ namespace Laganica\Di;
 
 use Laganica\Di\Definition\DefinitionFactory;
 use Laganica\Di\Resolver\ResolverFactory;
-use Psr\Container\ContainerInterface;
 
 /**
  * Class ContainerBuilder
@@ -32,9 +31,9 @@ class ContainerBuilder
     }
 
     /**
-     * @return ContainerInterface
+     * @return Container
      */
-    public function build(): ContainerInterface
+    public function build(): Container
     {
         $container = new Container(new DefinitionFactory(), new ResolverFactory());
         $container->setAutowire($this->isAutowire());

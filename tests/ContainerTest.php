@@ -3,6 +3,7 @@
 namespace Laganica\Di\Test;
 
 use Laganica\Di\ContainerBuilder;
+use Laganica\Di\Exception\CircularDependencyFoundException;
 use Laganica\Di\FactoryInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -22,9 +23,6 @@ class Dependency
 
 class Service implements ServiceInterface
 {
-    /**
-     * @param Dependency $dependency
-     */
     public function __construct(Dependency $dependency)
     {
     }
@@ -35,6 +33,22 @@ class ServiceFactory implements FactoryInterface
     public function __invoke(ContainerInterface $container)
     {
         return new Service($container->get(Dependency::class));
+    }
+}
+
+class NonResolvableDependency
+{
+    public function __construct(NonResolvable $nonResolvable)
+    {
+
+    }
+}
+
+class NonResolvable
+{
+    public function __construct(NonResolvableDependency $nonResolvableDependency)
+    {
+
     }
 }
 
@@ -167,5 +181,24 @@ class ContainerTest extends TestCase
         $container->addDefinitions($definitions);
 
         $this->assertEquals(100, $container->get('count'));
+    }
+
+    /**
+     * @throws
+     *
+     * @return void
+     */
+    public function testNonResolvable(): void
+    {
+        $definitions = [
+            'alias' => alias(NonResolvable::class)
+        ];
+
+        $container = (new ContainerBuilder)->build();
+        $container->addDefinitions($definitions);
+
+        $this->expectException(CircularDependencyFoundException::class);
+
+        $container->get(NonResolvable::class);
     }
 }
