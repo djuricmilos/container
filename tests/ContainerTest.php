@@ -194,6 +194,26 @@ class ContainerTest extends TestCase
     }
 
     /**
+     * @return void
+     */
+    public function testHas(): void
+    {
+        $container = (new ContainerBuilder)->build();
+
+        $this->assertTrue($container->has(Service::class));
+    }
+
+    /**
+     * @return void
+     */
+    public function testDoesNotHave(): void
+    {
+        $container = (new ContainerBuilder)->build();
+
+        $this->assertFalse($container->has(ServiceInterface::class));
+    }
+
+    /**
      * @throws
      *
      * @return void
