@@ -4,14 +4,13 @@ namespace Laganica\Di\Exception;
 
 use Closure;
 use Laganica\Di\Definition\DefinitionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 
 /**
  * Class InvalidDefinitionException
  *
  * @package Laganica\Di\Exception
  */
-class InvalidDefinitionException extends ContainerException implements NotFoundExceptionInterface
+class InvalidDefinitionException extends ContainerException
 {
     /**
      * @param $definition

@@ -2,14 +2,12 @@
 
 namespace Laganica\Di\Exception;
 
-use Psr\Container\NotFoundExceptionInterface;
-
 /**
  * Class ClassNotFoundException
  *
  * @package Laganica\Di\Exception
  */
-class ClassNotFoundException extends ContainerException implements NotFoundExceptionInterface
+class ClassNotFoundException extends ContainerException
 {
     /**
      * @param string $class

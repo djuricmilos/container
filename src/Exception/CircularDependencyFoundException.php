@@ -2,14 +2,12 @@
 
 namespace Laganica\Di\Exception;
 
-use Psr\Container\NotFoundExceptionInterface;
-
 /**
  * Class CircularDependencyFoundException
  *
  * @package Laganica\Di\Exception
  */
-class CircularDependencyFoundException extends ContainerException implements NotFoundExceptionInterface
+class CircularDependencyFoundException extends ContainerException
 {
     /**
      * @param string $id

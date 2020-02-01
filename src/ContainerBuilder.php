@@ -25,7 +25,10 @@ class ContainerBuilder
         $this->autowire = $autowire;
     }
 
-    public function isAutowire(): bool
+    /**
+     * @return bool
+     */
+    private function isAutowire(): bool
     {
         return $this->autowire;
     }

@@ -208,7 +208,10 @@ class ContainerTest extends TestCase
      */
     public function testDoesNotHave(): void
     {
-        $container = (new ContainerBuilder)->build();
+        $containerBuilder = new ContainerBuilder;
+        $containerBuilder->setAutowire(false);
+
+        $container = ($containerBuilder)->build();
 
         $this->assertFalse($container->has(ServiceInterface::class));
     }
