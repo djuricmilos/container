@@ -7,6 +7,7 @@ use InvalidArgumentException;
 use Laganica\Di\ContainerBuilder;
 use Laganica\Di\Definition\DefinitionInterface;
 use Laganica\Di\Exception\CircularDependencyFoundException;
+use Laganica\Di\Exception\ContainerException;
 use Laganica\Di\Exception\InvalidDefinitionException;
 use Laganica\Di\Exception\ClassNotFoundException;
 use Laganica\Di\FactoryInterface;
@@ -292,5 +293,22 @@ class ContainerTest extends TestCase
         $this->expectExceptionMessage('InvalidClass class not found');
 
         $container->get(ServiceInterface::class);
+    }
+
+    /**
+     * @throws
+     *
+     * @return void
+     */
+    public function testAddDefinitionDuplicate(): void
+    {
+        $container = (new ContainerBuilder)->build();
+        $container->addDefinition(ServiceInterface::class, Service::class);
+
+        $id = ServiceInterface::class;
+        $this->expectException(ContainerException::class);
+        $this->expectExceptionMessage("More than one definition is found for entry or class $id");
+
+        $container->addDefinition(ServiceInterface::class, Service::class);
     }
 }
