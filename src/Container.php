@@ -11,7 +11,7 @@ use Laganica\Di\Exception\CircularDependencyFoundException;
 use Laganica\Di\Exception\ContainerException;
 use Laganica\Di\Exception\DefinitionNotFoundException;
 use Laganica\Di\Exception\InvalidDefinitionException;
-use Laganica\Di\Exception\NotFoundException;
+use Laganica\Di\Exception\ClassNotFoundException;
 use Laganica\Di\Resolver\ResolverFactoryInterface;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
@@ -110,7 +110,7 @@ class Container implements ContainerInterface
      * @throws ContainerException
      * @throws DefinitionNotFoundException
      * @throws InvalidDefinitionException
-     * @throws NotFoundException
+     * @throws ClassNotFoundException
      *
      * @return mixed
      */

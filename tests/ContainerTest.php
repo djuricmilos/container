@@ -8,6 +8,7 @@ use Laganica\Di\ContainerBuilder;
 use Laganica\Di\Definition\DefinitionInterface;
 use Laganica\Di\Exception\CircularDependencyFoundException;
 use Laganica\Di\Exception\InvalidDefinitionException;
+use Laganica\Di\Exception\ClassNotFoundException;
 use Laganica\Di\FactoryInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -271,5 +272,25 @@ class ContainerTest extends TestCase
         $this->expectExceptionMessage("Argument \$definition must be either $definitionClass, $closureClass or string, integer given");
 
         $container->get('invalid-definition');
+    }
+
+    /**
+     * @throws
+     *
+     * @return void
+     */
+    public function testInvalidClass(): void
+    {
+        $definitions = [
+            ServiceInterface::class => 'InvalidClass'
+        ];
+
+        $container = (new ContainerBuilder)->build();
+        $container->addDefinitions($definitions);
+
+        $this->expectException(ClassNotFoundException::class);
+        $this->expectExceptionMessage('InvalidClass class not found');
+
+        $container->get(ServiceInterface::class);
     }
 }

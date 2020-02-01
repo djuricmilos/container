@@ -4,7 +4,7 @@ namespace Laganica\Di\Resolver;
 
 use Laganica\Di\Definition\ClassDefinition;
 use Laganica\Di\Definition\DefinitionInterface;
-use Laganica\Di\Exception\NotFoundException;
+use Laganica\Di\Exception\ClassNotFoundException;
 
 /**
  * Class AutowireResolver
@@ -23,7 +23,7 @@ class ClassResolver extends ReflectionResolver
         $class = $definition->getClass();
 
         if (!class_exists($class)) {
-            NotFoundException::create($class);
+            throw ClassNotFoundException::create($class);
         }
 
         $params = $this->getConstructorParams($class);

@@ -4,7 +4,7 @@ namespace Laganica\Di\Resolver;
 
 use Laganica\Di\Definition\DefinitionInterface;
 use Laganica\Di\Exception\ContainerException;
-use Laganica\Di\Exception\NotFoundException;
+use Laganica\Di\Exception\ClassNotFoundException;
 
 /**
  * Interface ResolverInterface
@@ -17,7 +17,7 @@ interface ResolverInterface
      * @param DefinitionInterface $definition
      *
      * @throws ContainerException
-     * @throws NotFoundException
+     * @throws ClassNotFoundException
      *
      * @return mixed
      */

@@ -2,7 +2,7 @@
 
 namespace Laganica\Di\Resolver;
 
-use Laganica\Di\Exception\NotFoundException;
+use Laganica\Di\Exception\ClassNotFoundException;
 use ReflectionClass;
 use ReflectionException;
 
@@ -16,7 +16,7 @@ abstract class ReflectionResolver extends Resolver
     /**
      * @param string $class
      *
-     * @throws NotFoundException
+     * @throws ClassNotFoundException
      *
      * @return array
      */
@@ -27,7 +27,7 @@ abstract class ReflectionResolver extends Resolver
         try {
             $reflection = new ReflectionClass($class);
         } catch (ReflectionException $e) {
-            throw NotFoundException::create($class);
+            throw ClassNotFoundException::create($class);
         }
 
         $constructor = $reflection->getConstructor();
