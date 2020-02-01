@@ -235,4 +235,16 @@ class ContainerTest extends TestCase
 
         $container->get(new Id);
     }
+
+    /**
+     * @throws
+     *
+     * @return void
+     */
+    public function testEntryIsShared(): void
+    {
+        $container = (new ContainerBuilder)->build();
+
+        $this->assertSame($container->get(Dependency::class), $container->get(Dependency::class));
+    }
 }
