@@ -32,6 +32,11 @@ class ResolverFactory implements ResolverFactoryInterface
     private $container;
 
     /**
+     * @var ResolverInterface[]
+     */
+    private $resolvers = [];
+
+    /**
      * @param ContainerInterface $container
      */
     public function setContainer(ContainerInterface $container): void
@@ -50,6 +55,7 @@ class ResolverFactory implements ResolverFactoryInterface
             throw InvalidDefinitionException::create($definition);
         }
 
-        return new $resolverClass($this->container);
+        return $this->resolvers[$resolverClass]
+            ?? $this->resolvers[$resolverClass] = new $resolverClass($this->container);
     }
 }
