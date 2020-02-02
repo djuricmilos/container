@@ -140,30 +140,11 @@ class Container implements ContainerInterface
     }
 
     /**
-     * @param array $definitions
-     *
-     * @throws ContainerException
+     * @param ArrayObject $definitions
      */
-    public function addDefinitions(array $definitions): void
+    public function setDefinitions(ArrayObject $definitions): void
     {
-        foreach ($definitions as $id => $definition) {
-            $this->addDefinition($id, $definition);
-        }
-    }
-
-    /**
-     * @param string $id
-     * @param $definition
-     *
-     * @throws ContainerException
-     */
-    public function addDefinition(string $id, $definition): void
-    {
-        if ($this->definitions->offsetExists($id)) {
-            throw new ContainerException("More than one definition is found for entry or class $id");
-        }
-
-        $this->definitions->offsetSet($id, $definition);
+        $this->definitions = $definitions;
     }
 
     /**

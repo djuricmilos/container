@@ -77,14 +77,12 @@ class ContainerTest extends TestCase
      */
     public function testInterfaceToClassBinding(): void
     {
-        $definitions = [
+        $builder = new ContainerBuilder();
+        $builder->addDefinitions([
             ServiceInterface::class => bind(Service::class)
-        ];
+        ]);
 
-        $container = (new ContainerBuilder)->build();
-        $container->addDefinitions($definitions);
-
-        $this->assertInstanceOf(Service::class, $container->get(ServiceInterface::class));
+        $this->assertInstanceOf(Service::class, $builder->build()->get(ServiceInterface::class));
     }
 
     /**
@@ -94,16 +92,14 @@ class ContainerTest extends TestCase
      */
     public function testInlineFactory(): void
     {
-        $definitions = [
+        $builder = new ContainerBuilder();
+        $builder->addDefinitions([
             ServiceInterface::class => static function (ContainerInterface $container) {
                 return new Service($container->get(Dependency::class));
             }
-        ];
+        ]);
 
-        $container = (new ContainerBuilder)->build();
-        $container->addDefinitions($definitions);
-
-        $this->assertInstanceOf(Service::class, $container->get(ServiceInterface::class));
+        $this->assertInstanceOf(Service::class, $builder->build()->get(ServiceInterface::class));
     }
 
     /**
@@ -113,16 +109,14 @@ class ContainerTest extends TestCase
      */
     public function testClosure(): void
     {
-        $definitions = [
+        $builder = new ContainerBuilder();
+        $builder->addDefinitions([
             ServiceInterface::class => closure(static function (ContainerInterface $container) {
                 return new Service($container->get(Dependency::class));
             })
-        ];
+        ]);
 
-        $container = (new ContainerBuilder)->build();
-        $container->addDefinitions($definitions);
-
-        $this->assertInstanceOf(Service::class, $container->get(ServiceInterface::class));
+        $this->assertInstanceOf(Service::class, $builder->build()->get(ServiceInterface::class));
     }
 
     /**
@@ -132,14 +126,12 @@ class ContainerTest extends TestCase
      */
     public function testFactory(): void
     {
-        $definitions = [
+        $builder = new ContainerBuilder();
+        $builder->addDefinitions([
             ServiceInterface::class => factory(ServiceFactory::class)
-        ];
+        ]);
 
-        $container = (new ContainerBuilder)->build();
-        $container->addDefinitions($definitions);
-
-        $this->assertInstanceOf(Service::class, $container->get(ServiceInterface::class));
+        $this->assertInstanceOf(Service::class, $builder->build()->get(ServiceInterface::class));
     }
 
     /**
@@ -149,15 +141,13 @@ class ContainerTest extends TestCase
      */
     public function testAlias(): void
     {
-        $definitions = [
+        $builder = new ContainerBuilder();
+        $builder->addDefinitions([
             ServiceInterface::class => factory(ServiceFactory::class),
             'alias' => alias(ServiceInterface::class)
-        ];
+        ]);
 
-        $container = (new ContainerBuilder)->build();
-        $container->addDefinitions($definitions);
-
-        $this->assertInstanceOf(Service::class, $container->get('alias'));
+        $this->assertInstanceOf(Service::class, $builder->build()->get('alias'));
     }
 
     /**
@@ -167,14 +157,12 @@ class ContainerTest extends TestCase
      */
     public function testClass(): void
     {
-        $definitions = [
+        $builder = new ContainerBuilder();
+        $builder->addDefinitions([
             ServiceInterface::class => Service::class
-        ];
+        ]);
 
-        $container = (new ContainerBuilder)->build();
-        $container->addDefinitions($definitions);
-
-        $this->assertInstanceOf(Service::class, $container->get(ServiceInterface::class));
+        $this->assertInstanceOf(Service::class, $builder->build()->get(ServiceInterface::class));
     }
 
     /**
@@ -184,14 +172,12 @@ class ContainerTest extends TestCase
      */
     public function testValue(): void
     {
-        $definitions = [
+        $builder = new ContainerBuilder();
+        $builder->addDefinitions([
             'count' => value(100)
-        ];
+        ]);
 
-        $container = (new ContainerBuilder)->build();
-        $container->addDefinitions($definitions);
-
-        $this->assertEquals(100, $container->get('count'));
+        $this->assertEquals(100, $builder->build()->get('count'));
     }
 
     /**
@@ -199,9 +185,9 @@ class ContainerTest extends TestCase
      */
     public function testHas(): void
     {
-        $container = (new ContainerBuilder)->build();
+        $builder = new ContainerBuilder();
 
-        $this->assertTrue($container->has(Service::class));
+        $this->assertTrue($builder->build()->has(Service::class));
     }
 
     /**
@@ -211,14 +197,12 @@ class ContainerTest extends TestCase
      */
     public function testHasInvalidDefinition(): void
     {
-        $definitions = [
+        $builder = new ContainerBuilder();
+        $builder->addDefinitions([
             ServiceInterface::class => 'InvalidClass'
-        ];
+        ]);
 
-        $container = (new ContainerBuilder)->build();
-        $container->addDefinitions($definitions);
-
-        $this->assertTrue($container->has(ServiceInterface::class));
+        $this->assertTrue($builder->build()->has(ServiceInterface::class));
     }
 
     /**
@@ -226,12 +210,10 @@ class ContainerTest extends TestCase
      */
     public function testDoesNotHave(): void
     {
-        $containerBuilder = new ContainerBuilder;
-        $containerBuilder->setAutowire(false);
+        $builder = new ContainerBuilder();
+        $builder->setAutowire(false);
 
-        $container = ($containerBuilder)->build();
-
-        $this->assertFalse($container->has(ServiceInterface::class));
+        $this->assertFalse($builder->build()->has(ServiceInterface::class));
     }
 
     /**
@@ -241,18 +223,16 @@ class ContainerTest extends TestCase
      */
     public function testNonResolvable(): void
     {
-        $definitions = [
+        $builder = new ContainerBuilder();
+        $builder->addDefinitions([
             'alias' => alias(NonResolvable::class)
-        ];
-
-        $container = (new ContainerBuilder)->build();
-        $container->addDefinitions($definitions);
+        ]);
 
         $class = NonResolvable::class;
         $this->expectException(CircularDependencyFoundException::class);
         $this->expectExceptionMessage("Circular dependency found for entry or class $class");
 
-        $container->get(NonResolvable::class);
+        $builder->build()->get(NonResolvable::class);
     }
 
     /**
@@ -260,12 +240,10 @@ class ContainerTest extends TestCase
      */
     public function testGetArgumentIsInteger(): void
     {
-        $container = (new ContainerBuilder)->build();
-
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Argument $id must be string, integer given');
 
-        $container->get(100);
+        (new ContainerBuilder)->build()->get(100);
     }
 
     /**
@@ -273,13 +251,11 @@ class ContainerTest extends TestCase
      */
     public function testGetArgumentIsObject(): void
     {
-        $container = (new ContainerBuilder)->build();
-
         $class = Id::class;
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage("Argument \$id must be string, $class given");
 
-        $container->get(new Id);
+        (new ContainerBuilder)->build()->get(new Id);
     }
 
     /**
@@ -301,19 +277,17 @@ class ContainerTest extends TestCase
      */
     public function testInvalidDefinition(): void
     {
-        $definitions = [
+        $builder = new ContainerBuilder();
+        $builder->addDefinitions([
             'invalid-definition' => 100
-        ];
-
-        $container = (new ContainerBuilder)->build();
-        $container->addDefinitions($definitions);
+        ]);
 
         $definitionClass = DefinitionInterface::class;
         $closureClass = Closure::class;
         $this->expectException(InvalidDefinitionException::class);
         $this->expectExceptionMessage("Argument \$definition must be either $definitionClass, $closureClass or string, integer given");
 
-        $container->get('invalid-definition');
+        $builder->build()->get('invalid-definition');
     }
 
     /**
@@ -323,17 +297,15 @@ class ContainerTest extends TestCase
      */
     public function testInvalidClass(): void
     {
-        $definitions = [
+        $builder = new ContainerBuilder();
+        $builder->addDefinitions([
             ServiceInterface::class => 'InvalidClass'
-        ];
-
-        $container = (new ContainerBuilder)->build();
-        $container->addDefinitions($definitions);
+        ]);
 
         $this->expectException(ClassNotFoundException::class);
         $this->expectExceptionMessage('InvalidClass class not found');
 
-        $container->get(ServiceInterface::class);
+        $builder->build()->get(ServiceInterface::class);
     }
 
     /**
@@ -343,19 +315,17 @@ class ContainerTest extends TestCase
      */
     public function testInvalidFactory(): void
     {
-        $definitions = [
+        $builder = new ContainerBuilder();
+        $builder->addDefinitions([
             ServiceInterface::class => factory(Service::class)
-        ];
-
-        $container = (new ContainerBuilder)->build();
-        $container->addDefinitions($definitions);
+        ]);
 
         $class = Service::class;
         $interface = FactoryInterface::class;
         $this->expectException(InvalidFactoryException::class);
         $this->expectExceptionMessage("$class must implement $interface");
 
-        $container->get(ServiceInterface::class);
+        $builder->build()->get(ServiceInterface::class);
     }
 
     /**
@@ -365,17 +335,15 @@ class ContainerTest extends TestCase
      */
     public function testInvalidFactoryClass(): void
     {
-        $definitions = [
+        $builder = new ContainerBuilder();
+        $builder->addDefinitions([
             ServiceInterface::class => factory('InvalidFactoryClass')
-        ];
-
-        $container = (new ContainerBuilder)->build();
-        $container->addDefinitions($definitions);
+        ]);
 
         $this->expectException(ClassNotFoundException::class);
         $this->expectExceptionMessage('InvalidFactoryClass class not found');
 
-        $container->get(ServiceInterface::class);
+        $builder->build()->get(ServiceInterface::class);
     }
 
     /**
@@ -385,13 +353,17 @@ class ContainerTest extends TestCase
      */
     public function testAddDefinitionDuplicate(): void
     {
-        $container = (new ContainerBuilder)->build();
-        $container->addDefinition(ServiceInterface::class, Service::class);
+        $builder = new ContainerBuilder();
+        $builder->addDefinitions([
+            ServiceInterface::class => Service::class
+        ]);
 
         $id = ServiceInterface::class;
         $this->expectException(ContainerException::class);
         $this->expectExceptionMessage("More than one definition is found for entry or class $id");
 
-        $container->addDefinition(ServiceInterface::class, Service::class);
+        $builder->addDefinitions([
+            ServiceInterface::class => Service::class
+        ]);
     }
 }
