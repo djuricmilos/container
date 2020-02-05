@@ -8,6 +8,7 @@ use PhpDocReader\PhpDocReader;
 use phpDocumentor\Reflection\DocBlockFactory;
 use ReflectionClass;
 use ReflectionException;
+use ReflectionProperty;
 
 /**
  * Class ReflectionResolver
@@ -65,26 +66,42 @@ abstract class ReflectionResolver extends Resolver
         }
 
         $phpDocReader = new PhpDocReader();
+
+        foreach ($this->getInjectableProperties($reflectionClass) as $property) {
+            try {
+                $identifier = $phpDocReader->getPropertyClass($property);
+                $property->setAccessible(true);
+                $property->setValue($entry, $this->getContainer()->get($identifier));
+            } catch (AnnotationException $ex) {
+                throw new ClassNotFoundException($ex->getMessage());
+            }
+        }
+    }
+
+    /**
+     * @param ReflectionClass $class
+     *
+     * @return ReflectionProperty[]
+     */
+    private function getInjectableProperties(ReflectionClass $class): array
+    {
+        $properties = [];
         $docBlockFactory = DocBlockFactory::createInstance();
 
-        foreach ($reflectionClass->getProperties() as $reflectionProperty) {
-            if ($reflectionProperty->isStatic()) {
+        foreach ($class->getProperties() as $property) {
+            if ($property->isStatic()) {
                 continue;
             }
 
-            $docBlock = $docBlockFactory->create($reflectionProperty->getDocComment());
+            $docBlock = $docBlockFactory->create($property->getDocComment());
 
             if (!$docBlock->hasTag('Inject')) {
                 continue;
             }
 
-            try {
-                $identifier = $phpDocReader->getPropertyClass($reflectionProperty);
-                $reflectionProperty->setAccessible(true);
-                $reflectionProperty->setValue($entry, $this->getContainer()->get($identifier));
-            } catch (AnnotationException $ex) {
-                throw new ClassNotFoundException($ex->getMessage());
-            }
+            $properties[] = $property;
         }
+
+        return $properties;
     }
 }
