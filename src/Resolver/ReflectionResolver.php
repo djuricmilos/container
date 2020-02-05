@@ -3,6 +3,9 @@
 namespace Laganica\Di\Resolver;
 
 use Laganica\Di\Exception\ClassNotFoundException;
+use PhpDocReader\AnnotationException;
+use PhpDocReader\PhpDocReader;
+use phpDocumentor\Reflection\DocBlockFactory;
 use ReflectionClass;
 use ReflectionException;
 
@@ -42,5 +45,46 @@ abstract class ReflectionResolver extends Resolver
         }
 
         return $params;
+    }
+
+    /**
+     * @param object $entry
+     *
+     * @throws ClassNotFoundException
+     *
+     * @return void
+     */
+    protected function injectProperties(object $entry): void
+    {
+        $class = get_class($entry);
+
+        try {
+            $reflectionClass = new ReflectionClass($class);
+        } catch (ReflectionException $e) {
+            throw ClassNotFoundException::create($class);
+        }
+
+        $phpDocReader = new PhpDocReader();
+        $docBlockFactory = DocBlockFactory::createInstance();
+
+        foreach ($reflectionClass->getProperties() as $reflectionProperty) {
+            if ($reflectionProperty->isStatic()) {
+                continue;
+            }
+
+            $docBlock = $docBlockFactory->create($reflectionProperty->getDocComment());
+
+            if (!$docBlock->hasTag('Inject')) {
+                continue;
+            }
+
+            try {
+                $identifier = $phpDocReader->getPropertyClass($reflectionProperty);
+                $reflectionProperty->setAccessible(true);
+                $reflectionProperty->setValue($entry, $this->getContainer()->get($identifier));
+            } catch (AnnotationException $ex) {
+                throw new ClassNotFoundException($ex->getMessage());
+            }
+        }
     }
 }

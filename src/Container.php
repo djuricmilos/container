@@ -42,7 +42,12 @@ class Container implements ContainerInterface
     /**
      * @var bool
      */
-    private $autowire = true;
+    private $autowire;
+
+    /**
+     * @var bool
+     */
+    private $annotations;
 
     /**
      * @var ResolverFactoryInterface
@@ -134,9 +139,25 @@ class Container implements ContainerInterface
         $this->autowire = $autowire;
     }
 
-    private function isAutowire(): bool
+    private function isAutowireEnabled(): bool
     {
         return $this->autowire;
+    }
+
+    /**
+     * @param bool $annotations
+     */
+    public function setAnnotations(bool $annotations): void
+    {
+        $this->annotations = $annotations;
+    }
+
+    /**
+     * @return bool
+     */
+    public function areAnnotationsEnabled(): bool
+    {
+        return $this->annotations;
     }
 
     /**
@@ -161,7 +182,7 @@ class Container implements ContainerInterface
             ? $this->definitions->offsetGet($id)
             : null;
 
-        if ($definition === null && $this->isAutowire()) {
+        if ($definition === null && $this->isAutowireEnabled()) {
             $definition = new ClassDefinition($id);
         }
 

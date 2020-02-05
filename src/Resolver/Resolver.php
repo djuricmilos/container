@@ -3,8 +3,8 @@
 namespace Laganica\Di\Resolver;
 
 use InvalidArgumentException;
+use Laganica\Di\Container;
 use Laganica\Di\Definition\DefinitionInterface;
-use Psr\Container\ContainerInterface;
 
 /**
  * Class Resolver
@@ -14,24 +14,22 @@ use Psr\Container\ContainerInterface;
 abstract class Resolver implements ResolverInterface
 {
     /**
-     * @var ContainerInterface
+     * @var Container
      */
     private $container;
 
     /**
-     * Resolver constructor.
-     *
-     * @param ContainerInterface $container
+     * @param Container $container
      */
-    public function __construct(ContainerInterface $container)
+    public function __construct(Container $container)
     {
         $this->container = $container;
     }
 
     /**
-     * @return ContainerInterface
+     * @return Container
      */
-    protected function getContainer(): ContainerInterface
+    protected function getContainer(): Container
     {
         return $this->container;
     }

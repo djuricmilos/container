@@ -22,6 +22,12 @@ class ClassResolver extends ReflectionResolver
         $class = $definition->getClass();
         $params = $this->getConstructorParams($class);
 
-        return new $class(...$params);
+        $entry = new $class(...$params);
+
+        if ($this->getContainer()->areAnnotationsEnabled()) {
+            $this->injectProperties($entry);
+        }
+
+        return $entry;
     }
 }

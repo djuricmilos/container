@@ -22,7 +22,12 @@ class ContainerBuilder
     /**
      * @var bool
      */
-    private $autowire;
+    private $autowire = true;
+
+    /**
+     * @var bool
+     */
+    private $annotations = false;
 
     public function __construct()
     {
@@ -40,9 +45,25 @@ class ContainerBuilder
     /**
      * @return bool
      */
-    private function isAutowire(): bool
+    private function isAutowireEnabled(): bool
     {
         return $this->autowire;
+    }
+
+    /**
+     * @param bool $annotations
+     */
+    public function setAnnotations(bool $annotations): void
+    {
+        $this->annotations = $annotations;
+    }
+
+    /**
+     * @return bool
+     */
+    private function areAnnotationsEnabled(): bool
+    {
+        return $this->annotations;
     }
 
     /**
@@ -75,7 +96,8 @@ class ContainerBuilder
     public function build(): Container
     {
         $container = new Container(new DefinitionFactory(), new ResolverFactory());
-        $container->setAutowire($this->isAutowire());
+        $container->setAutowire($this->isAutowireEnabled());
+        $container->setAnnotations($this->areAnnotationsEnabled());
         $container->setDefinitions($this->getDefinitions());
         $this->init();
 

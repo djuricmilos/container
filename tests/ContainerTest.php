@@ -14,6 +14,7 @@ use Laganica\Di\Exception\InvalidFactoryException;
 use Laganica\Di\FactoryInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use ReflectionProperty;
 use function Laganica\Di\alias;
 use function Laganica\Di\bind;
 use function Laganica\Di\closure;
@@ -25,6 +26,10 @@ interface ServiceInterface
 }
 
 class Dependency
+{
+}
+
+class NotDependency
 {
 }
 
@@ -61,6 +66,26 @@ class NonResolvable
 
 class Id
 {
+}
+
+class AnnotationService
+{
+    /**
+     * @Inject
+     * @var Dependency
+     */
+    private $dependency;
+
+    /**
+     * @Inject
+     * @var ServiceInterface
+     */
+    private $service;
+
+    /**
+     * @var NotDependency
+     */
+    private $notDependency;
 }
 
 /**
@@ -178,6 +203,38 @@ class ContainerTest extends TestCase
         ]);
 
         $this->assertEquals(100, $builder->build()->get('count'));
+    }
+
+    /**
+     * @throws
+     *
+     * @return void
+     */
+    public function testAnnotations(): void
+    {
+        $builder = new ContainerBuilder();
+        $builder->addDefinitions([
+            ServiceInterface::class => factory(ServiceFactory::class)
+        ]);
+        $builder->setAnnotations(true);
+
+        $entry = $builder->build()->get(AnnotationService::class);
+        $this->assertInstanceOf(AnnotationService::class, $entry);
+
+        $dependencyProperty = new ReflectionProperty(AnnotationService::class, 'dependency');
+        $dependencyProperty->setAccessible(true);
+        $dependencyPropertyValue = $dependencyProperty->getValue($entry);
+        $this->assertInstanceOf(Dependency::class, $dependencyPropertyValue);
+
+        $serviceProperty = new ReflectionProperty(AnnotationService::class, 'service');
+        $serviceProperty->setAccessible(true);
+        $servicePropertyValue = $serviceProperty->getValue($entry);
+        $this->assertInstanceOf(ServiceInterface::class, $servicePropertyValue);
+
+        $notDependencyProperty = new ReflectionProperty(AnnotationService::class, 'notDependency');
+        $notDependencyProperty->setAccessible(true);
+        $notDependencyPropertyValue = $notDependencyProperty->getValue($entry);
+        $this->assertNull($notDependencyPropertyValue);
     }
 
     /**
