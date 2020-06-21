@@ -24,7 +24,7 @@
 The fastest way to create container is to instantiate `Laganica\Di\Container` class.
 
 ```
-$continer = Laganica\Di\Container();
+$container = Laganica\Di\Container();
 ```
 
 By default, autowiring is enabled and annotations are disabled.
