@@ -41,6 +41,9 @@ $container = $builder->build();
 
 ### Definitions
 
+If object of service class cannot be created by using autowiring we have to create a definition for that service.
+Definition is telling the container how to instantiate a service class.
+
 #### Interface to Class binding
 
 Container will use class name passed to bind method to create instance of that class.
