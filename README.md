@@ -179,5 +179,5 @@ $builder = new ContainerBuilder();
 $builder->setAnnotations(true);
 
 $container = $builder->build();
-$service = $container->get(AnnotationService::class));
+$service = $container->get(Service::class));
 ```
