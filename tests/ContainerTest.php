@@ -216,7 +216,7 @@ class ContainerTest extends TestCase
         $builder->addDefinitions([
             ServiceInterface::class => factory(ServiceFactory::class)
         ]);
-        $builder->setAnnotations(true);
+        $builder->useAnnotations(true);
 
         $entry = $builder->build()->get(AnnotationService::class);
         $this->assertInstanceOf(AnnotationService::class, $entry);
@@ -268,7 +268,7 @@ class ContainerTest extends TestCase
     public function testDoesNotHave(): void
     {
         $builder = new ContainerBuilder();
-        $builder->setAutowire(false);
+        $builder->useAutowiring(false);
 
         $this->assertFalse($builder->build()->has(ServiceInterface::class));
     }
@@ -363,6 +363,21 @@ class ContainerTest extends TestCase
         $this->expectExceptionMessage('InvalidClass class not found');
 
         $builder->build()->get(ServiceInterface::class);
+    }
+
+    /**
+     * @throws
+     *
+     * @return void
+     */
+    public function testAutowiringInvalidClass(): void
+    {
+        $builder = new ContainerBuilder();
+
+        $this->expectException(ClassNotFoundException::class);
+        $this->expectExceptionMessage('InvalidClass class not found');
+
+        $builder->build()->get('InvalidClass');
     }
 
     /**

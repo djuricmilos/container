@@ -44,8 +44,8 @@ By default, autowiring is enabled and annotations are disabled.
 
 ```php
 $builder = new Laganica\Di\ContainerBuilder();
-$builder->setAutowire(false);
-$builder->setAnnotations(false);
+$builder->useAutowiring(false);
+$builder->useAnnotations(false);
 
 $container = $builder->build();
 ```

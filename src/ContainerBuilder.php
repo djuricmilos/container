@@ -22,12 +22,12 @@ class ContainerBuilder
     /**
      * @var bool
      */
-    private $autowire = true;
+    private $useAutowiring;
 
     /**
      * @var bool
      */
-    private $annotations = false;
+    private $useAnnotations = false;
 
     public function __construct()
     {
@@ -35,35 +35,35 @@ class ContainerBuilder
     }
 
     /**
-     * @param bool $autowire
+     * @param bool $useAutowiring
      */
-    public function setAutowire(bool $autowire): void
+    public function useAutowiring(bool $useAutowiring): void
     {
-        $this->autowire = $autowire;
+        $this->useAutowiring = $useAutowiring;
     }
 
     /**
      * @return bool
      */
-    private function isAutowireEnabled(): bool
+    private function hasAutowiringEnabled(): bool
     {
-        return $this->autowire;
+        return $this->useAutowiring;
     }
 
     /**
-     * @param bool $annotations
+     * @param bool $useAnnotations
      */
-    public function setAnnotations(bool $annotations): void
+    public function useAnnotations(bool $useAnnotations): void
     {
-        $this->annotations = $annotations;
+        $this->useAnnotations = $useAnnotations;
     }
 
     /**
      * @return bool
      */
-    private function areAnnotationsEnabled(): bool
+    private function hasAnnotationsEnabled(): bool
     {
-        return $this->annotations;
+        return $this->useAnnotations;
     }
 
     /**
@@ -96,10 +96,11 @@ class ContainerBuilder
     public function build(): Container
     {
         $container = new Container(new DefinitionFactory(), new ResolverFactory());
-        $container->setAutowire($this->isAutowireEnabled());
-        $container->setAnnotations($this->areAnnotationsEnabled());
+        $container->setAutowire($this->hasAutowiringEnabled());
+        $container->setAnnotations($this->hasAnnotationsEnabled());
         $container->setDefinitions($this->getDefinitions());
-        $this->init();
+
+        $this->reset();
 
         return $container;
     }
@@ -109,7 +110,15 @@ class ContainerBuilder
      */
     private function init(): void
     {
-        $this->setAutowire(true);
+        $this->useAutowiring(true);
         $this->definitions = new ArrayObject();
+    }
+
+    /**
+     * @return void
+     */
+    private function reset(): void
+    {
+        $this->init();
     }
 }
