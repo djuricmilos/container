@@ -162,7 +162,8 @@ $count = $container->get('count'));
 
 ### Annotations
 
-Service class
+Container will use `@Inject` annotation on `$dependency` property in `Service` class to inject `Dependency`.
+As autowiring is enabled by default, it will be used to create instance of `Dependency` class.
 
 ```
 class Service
@@ -173,12 +174,7 @@ class Service
      */
     private $dependency;
 }
-```
 
-Container will use `@Inject` annotation on `$dependency` property in `Service` class to inject `Dependency`.
-As autowiring is enabled by default, it will be used to create instance of `Dependency` class.
-
-```
 $builder = new ContainerBuilder();
 $builder->setAnnotations(true);
 
