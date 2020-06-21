@@ -28,7 +28,7 @@ The preferred method of installation is via [Composer](http://getcomposer.org/).
 composer require djuricmilos/container
 ```
 
-##Usage
+## Usage
 
 ### Simple container
 
