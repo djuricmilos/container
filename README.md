@@ -58,7 +58,7 @@ $container = $builder->build();
 $service = $container->get(ServiceInterface::class));
 ```
 
-#### Classname
+#### Class name
 
 The same as bind, just shorter.
 
@@ -107,7 +107,7 @@ $service = $container->get(ServiceInterface::class));
 
 #### Factory
 
-Container will use invoke object of factory class to create service instance.
+Container will invoke object of factory class to create service instance.
 
 ```
 $builder = new Laganica\Di\ContainerBuilder();
@@ -139,11 +139,11 @@ Container will use entry name passed to alias method to find other entry and use
 $builder = new Laganica\Di\ContainerBuilder();
 $builder->addDefinitions([
     ServiceInterface::class => Service::class,
-    'alias' => alias(ServiceInterface::class)
+    'service-alias' => alias(ServiceInterface::class)
 ]);
 
 $container = $builder->build();
-$service = $container->get('alias'));
+$service = $container->get('service-alias'));
 ```
 
 #### Values
