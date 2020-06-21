@@ -186,8 +186,8 @@ class Service
     private $dependency;
 }
 
-$builder = new ContainerBuilder();
-$builder->setAnnotations(true);
+$builder = new Laganica\Di\ContainerBuilder();
+$builder->useAnnotations(true);
 
 $container = $builder->build();
 $service = $container->get(Service::class);
