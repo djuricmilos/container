@@ -42,12 +42,12 @@ class Container implements ContainerInterface
     /**
      * @var bool
      */
-    private $autowire;
+    private $useAutowiring;
 
     /**
      * @var bool
      */
-    private $annotations;
+    private $useAnnotations;
 
     /**
      * @var ResolverFactoryInterface
@@ -132,32 +132,35 @@ class Container implements ContainerInterface
     }
 
     /**
-     * @param bool $autowire
+     * @param bool $useAutowiring
      */
-    public function setAutowire(bool $autowire): void
+    public function useAutowiring(bool $useAutowiring): void
     {
-        $this->autowire = $autowire;
-    }
-
-    private function isAutowireEnabled(): bool
-    {
-        return $this->autowire;
-    }
-
-    /**
-     * @param bool $annotations
-     */
-    public function setAnnotations(bool $annotations): void
-    {
-        $this->annotations = $annotations;
+        $this->useAutowiring = $useAutowiring;
     }
 
     /**
      * @return bool
      */
-    public function areAnnotationsEnabled(): bool
+    private function hasAutowiringEnabled(): bool
     {
-        return $this->annotations;
+        return $this->useAutowiring;
+    }
+
+    /**
+     * @param bool $useAnnotations
+     */
+    public function useAnnotations(bool $useAnnotations): void
+    {
+        $this->useAnnotations = $useAnnotations;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasAnnotationsEnabled(): bool
+    {
+        return $this->useAnnotations;
     }
 
     /**
@@ -182,7 +185,7 @@ class Container implements ContainerInterface
             ? $this->definitions->offsetGet($id)
             : null;
 
-        if ($definition === null && $this->isAutowireEnabled()) {
+        if ($definition === null && $this->hasAutowiringEnabled()) {
             $definition = new ClassDefinition($id);
         }
 

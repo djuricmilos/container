@@ -27,7 +27,7 @@ class ContainerBuilder
     /**
      * @var bool
      */
-    private $useAnnotations = false;
+    private $useAnnotations;
 
     public function __construct()
     {
@@ -96,8 +96,8 @@ class ContainerBuilder
     public function build(): Container
     {
         $container = new Container(new DefinitionFactory(), new ResolverFactory());
-        $container->setAutowire($this->hasAutowiringEnabled());
-        $container->setAnnotations($this->hasAnnotationsEnabled());
+        $container->useAutowiring($this->hasAutowiringEnabled());
+        $container->useAnnotations($this->hasAnnotationsEnabled());
         $container->setDefinitions($this->getDefinitions());
 
         $this->reset();
@@ -111,6 +111,7 @@ class ContainerBuilder
     private function init(): void
     {
         $this->useAutowiring(true);
+        $this->useAnnotations(false);
         $this->definitions = new ArrayObject();
     }
 

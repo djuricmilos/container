@@ -24,7 +24,7 @@ class ClassResolver extends ReflectionResolver
 
         $entry = new $class(...$params);
 
-        if ($this->getContainer()->areAnnotationsEnabled()) {
+        if ($this->getContainer()->hasAnnotationsEnabled()) {
             $this->injectProperties($entry);
         }
 
