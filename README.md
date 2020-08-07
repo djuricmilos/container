@@ -164,7 +164,7 @@ Container will return value passed to value method.
 ```php
 $builder = new Laganica\Di\ContainerBuilder();
 $builder->addDefinitions([
-    'count' => value(100)
+    'count' => Laganica\Di\value(100)
 ]);
 
 $container = $builder->build();
