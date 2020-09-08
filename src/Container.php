@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * This file is part of the Container package.
+ *
+ * Copyright (c) Miloš Đurić <djuric.milos@gmail.com>
+ *
+ * For full copyright and license information, please refer to the LICENSE file,
+ * located at the package root folder.
+ */
+
 namespace Laganica\Di;
 
 use ArrayObject;
@@ -91,6 +100,21 @@ class Container implements ContainerInterface
         $this->entries->offsetSet($id, $entry);
 
         return $entry;
+    }
+
+    /**
+     * Creates new entry by its identifier and returns it.
+     *
+     * @param string $id Identifier of the entry to look for.
+     *
+     * @throws NotFoundExceptionInterface  No entry was found for **this** identifier.
+     * @throws ContainerExceptionInterface Error while creating the entry.
+     *
+     * @return mixed Entry.
+     */
+    public function make(string $id)
+    {
+        return $this->resolveEntry($id);
     }
 
     /**

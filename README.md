@@ -35,7 +35,9 @@ composer require djuricmilos/container
 The fastest way to create container is to instantiate `Laganica\Di\Container` class.
 
 ```php
-$container = new Laganica\Di\Container();
+use Laganica\Di\Container;
+
+$container = new Container();
 ```
 
 By default, autowiring is enabled and annotations are disabled.
@@ -43,7 +45,9 @@ By default, autowiring is enabled and annotations are disabled.
 ### Configuring the container
 
 ```php
-$builder = new Laganica\Di\ContainerBuilder();
+use Laganica\Di\ContainerBuilder;
+
+$builder = new ContainerBuilder();
 $builder->useAutowiring(false);
 $builder->useAnnotations(false);
 
@@ -60,9 +64,12 @@ Definition is telling the container how to instantiate a service class.
 Container will use class name passed to bind method to create instance of that class.
 
 ```php
-$builder = new Laganica\Di\ContainerBuilder();
+use Laganica\Di\ContainerBuilder;
+use function Laganica\Di\bind;
+
+$builder = new ContainerBuilder();
 $builder->addDefinitions([
-    ServiceInterface::class => Laganica\Di\bind(Service::class)
+    ServiceInterface::class => bind(Service::class)
 ]);
 
 $container = $builder->build();
@@ -74,7 +81,9 @@ $service = $container->get(ServiceInterface::class);
 The same as bind, just shorter.
 
 ```php
-$builder = new Laganica\Di\ContainerBuilder();
+use Laganica\Di\ContainerBuilder;
+
+$builder = new ContainerBuilder();
 $builder->addDefinitions([
     ServiceInterface::class => Service::class
 ]);
@@ -89,9 +98,13 @@ Container will invoke closure to create service instance.
 Note that `$container` is available as closure parameter.
 
 ```php
-$builder = new Laganica\Di\ContainerBuilder();
+use Laganica\Di\ContainerBuilder;
+use Psr\Container\ContainerInterface;
+use function Laganica\Di\closure;
+
+$builder = new ContainerBuilder();
 $builder->addDefinitions([
-    ServiceInterface::class => Laganica\Di\closure(static function (Psr\Container\ContainerInterface $container) {
+    ServiceInterface::class => closure(static function (ContainerInterface $container) {
         return new Service($container->get(Dependency::class));
     })
 ]);
@@ -105,9 +118,12 @@ $service = $container->get(ServiceInterface::class);
 The same as closure, just shorter.
 
 ```php
-$builder = new Laganica\Di\ContainerBuilder();
+use Laganica\Di\ContainerBuilder;
+use Psr\Container\ContainerInterface;
+
+$builder = new ContainerBuilder();
 $builder->addDefinitions([
-    ServiceInterface::class => static function (Psr\Container\ContainerInterface $container) {
+    ServiceInterface::class => static function (ContainerInterface $container) {
         return new Service($container->get(Dependency::class));
     }
 ]);
@@ -121,9 +137,12 @@ $service = $container->get(ServiceInterface::class);
 Container will invoke object of factory class to create service instance.
 
 ```php
-$builder = new Laganica\Di\ContainerBuilder();
+use Laganica\Di\ContainerBuilder;
+use function Laganica\Di\factory;
+
+$builder = new ContainerBuilder();
 $builder->addDefinitions([
-    ServiceInterface::class => Laganica\Di\factory(ServiceFactory::class)
+    ServiceInterface::class => factory(ServiceFactory::class)
 ]);
 
 $container = $builder->build();
@@ -133,9 +152,12 @@ $service = $container->get(ServiceInterface::class);
 ServiceFactory is class that implements `Laganica\Di\FactoryInterface` interface and whose __invoke method is used to define how service is created.
 
 ```php
-class ServiceFactory implements Laganica\Di\FactoryInterface
+use Laganica\Di\FactoryInterface;
+use Psr\Container\ContainerInterface;
+
+class ServiceFactory implements FactoryInterface
 {
-    public function __invoke(Psr\Container\ContainerInterface $container)
+    public function __invoke(ContainerInterface $container)
     {
         return new Service($container->get(Dependency::class));
     }
@@ -147,10 +169,13 @@ class ServiceFactory implements Laganica\Di\FactoryInterface
 Container will use entry name passed to alias method to find other entry and use it to create service instance.
 
 ```php
-$builder = new Laganica\Di\ContainerBuilder();
+use Laganica\Di\ContainerBuilder;
+use function Laganica\Di\alias;
+
+$builder = new ContainerBuilder();
 $builder->addDefinitions([
     ServiceInterface::class => Service::class,
-    'service-alias' => Laganica\Di\alias(ServiceInterface::class)
+    'service-alias' => alias(ServiceInterface::class)
 ]);
 
 $container = $builder->build();
@@ -162,14 +187,34 @@ $service = $container->get('service-alias');
 Container will return value passed to value method.
 
 ```php
-$builder = new Laganica\Di\ContainerBuilder();
+use Laganica\Di\ContainerBuilder;
+use function Laganica\Di\value;
+
+$builder = new ContainerBuilder();
 $builder->addDefinitions([
-    'count' => Laganica\Di\value(100)
+    'count' => value(100)
 ]);
 
 $container = $builder->build();
 $count = $container->get('count');
 ```
+
+### Make
+
+Sometimes we don't want to share the service from container. For that purpose we can use `make()` method.
+
+```php
+use Laganica\Di\ContainerBuilder;
+use function Laganica\Di\bind;
+
+$builder = new ContainerBuilder();
+$builder->addDefinitions([
+    ServiceInterface::class => bind(Service::class)
+]);
+
+$container = $builder->build();
+$service = $container->make(ServiceInterface::class);
+``` 
 
 ### Annotations
 
@@ -177,6 +222,8 @@ Container will use `@Inject` annotation on `$dependency` property in `Service` c
 As autowiring is enabled by default, it will be used to create instance of `Dependency` class.
 
 ```php
+use Laganica\Di\ContainerBuilder;
+
 class Service
 {
     /**
@@ -186,7 +233,7 @@ class Service
     private $dependency;
 }
 
-$builder = new Laganica\Di\ContainerBuilder();
+$builder = new ContainerBuilder();
 $builder->useAnnotations(true);
 
 $container = $builder->build();

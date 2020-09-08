@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * This file is part of the Container package.
+ *
+ * Copyright (c) Miloš Đurić <djuric.milos@gmail.com>
+ *
+ * For full copyright and license information, please refer to the LICENSE file,
+ * located at the package root folder.
+ */
+
 namespace Laganica\Di\Test;
 
 use Closure;
@@ -325,6 +334,22 @@ class ContainerTest extends TestCase
         $container = (new ContainerBuilder)->build();
 
         $this->assertSame($container->get(Dependency::class), $container->get(Dependency::class));
+    }
+
+    /**
+     * @throws
+     *
+     * @return void
+     */
+    public function testEntryIsNotShared(): void
+    {
+        $container = (new ContainerBuilder)->build();
+
+        $dependency1 = $container->make(Dependency::class);
+        $dependency2 = $container->make(Dependency::class);
+
+        $this->assertEquals($dependency1, $dependency2);
+        $this->assertNotSame($dependency1, $dependency2);
     }
 
     /**
